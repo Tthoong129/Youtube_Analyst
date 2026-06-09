@@ -38,7 +38,7 @@ def transform_pipeline():
     
     df["duration_sec"] = df["duration"].apply(parse_duration)
     df = df[df["duration_sec"] > 0].copy()
-    df["duration_bucket"] = df["duration_sec"].apply(get_duration_bucket)
+    df[["duration_bucket", "duration_sort"]] = df["duration_sec"].apply(lambda x: pd.Series(get_duration_bucket(x)))
     
     df["engagement_rate"] = (df["likeCount"] + df["commentCount"]) / df["viewCount"]
     df["like_rate"] = df["likeCount"] / df["viewCount"]
@@ -59,7 +59,7 @@ def transform_pipeline():
         "duration", "duration_sec", "duration_bucket",
         "viewCount", "likeCount", "commentCount", 
         "engagement_rate", "like_rate", "comment_rate",
-        "tags", "tag_count", "thumbnail_link"
+        "tags", "tag_count", "thumbnail_link", "duration_sort"
     ]
     df_clean = df[[c for c in cols if c in df.columns]]
     
