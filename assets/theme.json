@@ -1,0 +1,16 @@
+{
+  "name": "YouTube Light",
+  "dataColors": ["#FF0000", "#FF8C00", "#8E44AD", "#2ECC71", "#3498DB", "#34495E", "#BDC3C7"],
+  "background": "#F9F9F9",
+  "foreground": "#282828",
+  "tableAccent": "#FF0000",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#FFFFFF" } } }],
+        "fontColor": [{ "solid": { "color": "#282828" } }],
+        "border": [{ "show": true, "color": { "solid": { "color": "#E5E5E5" } } }]
+      }
+    }
+  }
+}

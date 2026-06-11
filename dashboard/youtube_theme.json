@@ -1,0 +1,35 @@
+{
+  "name": "YouTube Dark",
+  "dataColors": [
+    "#FF4444",
+    "#FF8C00",
+    "#9B59B6",
+    "#27AE60",
+    "#3498DB",
+    "#95A5A6",
+    "#2C3E50"
+  ],
+  "background": "#0F0F0F",
+  "foreground": "#FFFFFF",
+  "tableAccent": "#FF4444",
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#1A1A1A" } } }],
+        "fontColor": [{ "solid": { "color": "#FFFFFF" } }],
+        "border": [{ "color": { "solid": { "color": "#2A2A2A" } } }]
+      }
+    },
+    "card": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#1A1A1A" } } }],
+        "fontColor": [{ "solid": { "color": "#FFFFFF" } }]
+      }
+    },
+    "lineChart": {
+      "*": {
+        "lineColor": [{ "solid": { "color": "#FF4444" } }]
+      }
+    }
+  }
+}
