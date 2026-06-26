@@ -1,112 +1,73 @@
-# Vietnam YouTube Trending Analytics
+# Vietnam YouTube Trending Data Pipeline & Dashboard 📊🇻🇳
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org)
-[![YouTube API v3](https://img.shields.io/badge/YouTube_API-v3-red.svg)](https://developers.google.com/youtube/v3)
-[![Power BI](https://img.shields.io/badge/Power_BI-Dashboard-F2C811.svg)](https://powerbi.microsoft.com)
+## 📌 Project Overview
+An end-to-end Data Engineering & Analytics project that extracts real-time data from the **YouTube Data API (v3)** for trending videos in Vietnam, processes the raw data using **Python (Pandas)**, and visualizes the insights via a highly interactive and aesthetically pleasing **Power BI Dashboard**.
 
-Hệ thống end-to-end pipeline tự động kéo 200 video YouTube lọt top trending tại Việt Nam, xử lý dữ liệu, và trực quan hóa lên Power BI Dashboard nhằm giải quyết bài toán: **Điều gì thực sự giúp một video lọt vào top thịnh hành?**
+This project demonstrates the ability to build a complete ETL (Extract, Transform, Load) pipeline and deliver business intelligence insights.
 
----
+## 📸 Dashboard Preview
 
-## 🎯 Bài Toán Kinh Doanh
+### 1. General Overview
+![Overview Dashboard](dashboard/dashboard_page1.png)
 
-Các nhà sáng tạo nội dung và Marketing thường không có cách đo lường chính xác khung giờ đăng bài, định dạng nội dung hay các thẻ (tags) nào mang lại hiệu suất tốt nhất. Pipeline này cung cấp câu trả lời dựa trên dữ liệu thực tế thay vì phỏng đoán.
+### 2. Creator & Hashtag Intelligence
+![Creator & Hashtag Intelligence](dashboard/dashboard_page2.png)
 
-Trả lời 3 câu hỏi cốt lõi:
-1. **Khi nào nên đăng bài** — Khung giờ và ngày nào mang lại nhiều lượt xem nhất?
-2. **Định dạng thế nào** — Độ dài tiêu đề, việc sử dụng emoji hay số có ảnh hưởng đến hiệu suất không?
-3. **Sử dụng hashtag gì** — Những hashtag nào thường xuyên xuất hiện ở các video có tỷ lệ tương tác cao nhất?
+## 🛠️ Technology Stack
+- **Language**: Python 3.x
+- **Libraries**: `pandas`, `google-api-python-client`, `isodate`, `python-dotenv`
+- **API**: YouTube Data API v3
+- **BI Tool**: Power BI Desktop
+- **Version Control**: Git / GitHub
 
----
+## ⚙️ Data Pipeline Architecture
 
-## 📊 Dữ Liệu & Feature Engineering
+1. **Extraction (`src/extract.py`)**: 
+   - Connects to the YouTube API.
+   - Fetches the Top 200 trending videos in the Vietnam region (`regionCode='VN'`).
+   - Extracts metadata including `viewCount`, `likeCount`, `commentCount`, `duration`, and `tags`.
 
-- **Nguồn dữ liệu**: Gọi trực tiếp từ YouTube Data API v3 (Lấy danh sách Top 200 video trending mới nhất tại khu vực `VN`).
-- **Khối lượng**: 200 videos, liên tục cập nhật theo thời gian thực mỗi lần chạy pipeline.
-- **Kỹ thuật đặc trưng (Feature Engineering)**: Để phục vụ phân tích sâu, dữ liệu thô đã được làm sạch và tự động tính toán thêm các trường giá trị cao:
-  - `Engagement Rate`, `Like Rate`, `Comment Rate`: Đo lường tỷ lệ tương tác thực tế thay vì chỉ nhìn vào View.
-  - `Publish Hour` & `Day of Week`: Chuyển đổi múi giờ UTC sang giờ Việt Nam để phân tích "khung giờ vàng".
-  - `Duration Bucket`: Phân loại thời lượng video thành các nhóm (VD: 3-5 phút, 10-30 phút).
-  - `Title Length`, `Has Emoji`, `Has Number`: Trích xuất đặc trưng từ tiêu đề video để tìm công thức đặt tên thu hút.
-  - `Tags`: Bóc tách và tổng hợp chỉ số hiệu năng cho từng hashtag riêng biệt.
+2. **Transformation (`src/clean.py` & `src/process_hashtags.py`)**:
+   - Converts complex ISO 8601 timestamps into readable `duration_sec`.
+   - Classifies videos into `duration_bucket` (e.g., "3-5 mins", "10-20 mins") for categorical analysis.
+   - Computes an `Engagement Rate` metric.
+   - Explodes string `tags` into a fully normalized `hashtag_performance.csv` dataset, enabling scatter plot analysis of hashtag effectiveness.
 
----
+3. **Loading (`data/processed/`)**: 
+   - Outputs pristine, analytical-ready CSV datasets.
 
-## ⚙️ Luồng Xử Lý (Data Pipeline)
+4. **Visualization (`dashboard/`)**: 
+   - A custom Power BI dashboard using a `youtube_theme.json` for consistent, premium UI/UX.
+   - Features include custom KPI Cards, interactive Treemaps, and conditionally formatted Bar Charts.
 
-```mermaid
-graph TD
-    A[YouTube Data API v3] -->|extract.py| B(youtube_raw.csv)
-    B -->|clean.py| C(youtube_clean.csv)
-    C -->|process_hashtags.py| D(hashtag_performance.csv)
+## 🚀 How to Run Locally
 
-    subgraph Analytics
-    C --> E[analysis.ipynb]
-    C --> F[export_excel.py]
-    end
+1. **Clone this repository**:
+   ```bash
+   git clone https://github.com/Tthoong129/Youtube_Analyst.git
+   cd Youtube_Analyst
+   ```
 
-    subgraph Serving
-    C --> G[Power BI Dashboard]
-    D --> G
-    end
-```
-*Dữ liệu đi từ YouTube API qua các bước làm sạch bằng Pandas, sau đó được tự động phân phối ra Báo cáo Excel tự động, Sổ tay phân tích và Power BI Dashboard.*
+2. **Set up virtual environment & install dependencies**:
+   ```bash
+   python -m venv venv
+   source venv/Scripts/activate  # On Windows
+   pip install -r requirements.txt
+   ```
 
----
+3. **Configure API Key**:
+   - Create a `.env` file in the root directory.
+   - Add your API Key: `YOUTUBE_API_KEY=your_api_key_here`
 
-## 📈 Power BI Dashboard (Phân Tích Trực Quan)
+4. **Run the ETL Pipeline**:
+   ```bash
+   python run_pipeline.py
+   ```
+   *(This will fetch the latest trending data and update the CSV files).*
 
-Dashboard được thiết kế không chỉ để trưng bày số liệu, mà để trả lời trực tiếp các câu hỏi kinh doanh.
+5. **View Dashboard**:
+   - Open `dashboard/Youtube_Trending_Dashboard.pbix` in Power BI Desktop.
+   - Click **Refresh** to load the newly generated local data.
 
-**Trang 1 — Tổng Quan & Hành Vi Người Xem**
-- **Đánh giá hiệu suất tổng thể**: Theo dõi các chỉ số cốt lõi (Total Views, Avg Engagement Rate).
-- **Phân tích Thời điểm đăng (Heatmap)**: Xác định khung "giờ vàng" và ngày trong tuần mang lại lượt xem cao nhất.
-- **Tối ưu Thời lượng (Bar Chart & Scatter)**: Đánh giá xem nhóm thời lượng nào giữ chân người xem tốt nhất và mang lại tương tác cao.
-
-**Trang 2 — Phân Tích Kênh & Hashtag (Content Strategy)**
-- **Xác định Đối thủ & Kênh dẫn đầu**: Theo dõi Top 10 kênh có lượt view thống trị tab thịnh hành.
-- **Khám phá "Từ khóa vàng" (4-Quadrant Scatter)**: Ma trận phân tích Tần suất vs Tương tác giúp phát hiện những hashtag mang lại tỷ lệ tương tác cực kỳ cao.
-- **Chi tiết Hashtag**: Bảng theo dõi và đánh giá mức độ hiệu quả của từng từ khóa cụ thể.
-
----
-
-## 💡 Key Findings (Kết Quả Tiêu Biểu)
-
-*(Lưu ý: Pipeline chạy real-time nên kết quả có thể biến động, dưới đây là insight rút ra từ bản snapshot hiện tại)*
-- **Khung giờ vàng**: Video đăng tải vào các khung giờ tối (18h-20h) vào các ngày cuối tuần thường có xác suất lọt top trending với lượng View áp đảo.
-- **Định dạng tối ưu**: Các video có thời lượng tầm trung (**10-30 phút**) mang lại tỷ lệ tương tác (Engagement Rate) cao nhất, vượt trội hơn so với video quá ngắn (dưới 3 phút). Việc tiêu đề chứa Số liệu hoặc Emoji cũng là một mẫu số chung của các video triệu view.
-- **Chiến lược Hashtag**: Những hashtag thuộc ngách giải trí/game (VD: `#lienquan`, `#hai`) có tần suất xuất hiện dày đặc nhất, nhưng những hashtag thuộc ngách giáo dục/review lại có tỷ lệ tương tác trung bình ổn định hơn. Phân tích ma trận góc phần tư (4-Quadrant) đã lọc ra được danh sách các "từ khóa vàng" đáng để chèn vào video nhất.
-
----
-
-## 📂 Kiến Trúc Source Code
-
-- **`src/utils.py`**: Các hàm tiện ích dùng chung (Parse thời gian, cấu hình log).
-- **`src/extract.py`**: Gọi API và lưu dữ liệu thô.
-- **`src/clean.py`**: Làm sạch dữ liệu, xử lý múi giờ và Feature Engineering.
-- **`src/process_hashtags.py`**: Xử lý tách từ khóa chuyên sâu.
-- **`src/export_excel.py`**: Tự động sinh báo cáo Excel.
-- **`run_pipeline.py`**: File thực thi 1-chạm (One-click) cho toàn bộ chu trình.
-
----
-
-## 🚀 Hướng Dẫn Cài Đặt & Vận Hành
-
-```bash
-# 1. Clone project và kích hoạt môi trường ảo (venv)
-python -m venv venv
-venv\Scripts\activate      # Dành cho Windows
-source venv/bin/activate   # Dành cho Mac/Linux
-
-# 2. Cài đặt thư viện
-pip install -r requirements.txt
-
-# 3. Thêm API Key
-cp .env.example .env
-# Mở file .env và điền → YOUTUBE_API_KEY=your_key_here
-```
-
-**Chạy toàn bộ Pipeline (Kéo data -> Làm sạch -> Xuất Excel) chỉ với 1 lệnh:**
-```bash
-python run_pipeline.py
-```
+## 📝 License
+This project is for educational and portfolio purposes. Data is fetched using the official YouTube API.
